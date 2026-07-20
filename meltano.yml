@@ -1,0 +1,45 @@
+send_anonymous_usage_stats: true
+project_id: "tap-released"
+default_environment: test
+requires_meltano: ">=4.0"
+environments:
+- name: test
+plugins:
+  extractors:
+  - name: "tap-released"
+    namespace: "tap_released"
+    pip_url: -e .
+    capabilities:
+    - state
+    - catalog
+    - discover
+    - about
+    - stream-maps
+    - structured-logging
+
+    settings:
+    - name: access_token
+      label: Access Token
+      description: Long-lived Bearer access token for the Released API
+      sensitive: true
+
+    - name: start_date
+      kind: date_iso8601
+      label: Start Date
+      description: Initial date to start extracting data from
+
+    - name: api_url
+      label: API URL
+      description: Base URL for the Released API
+
+    settings_group_validation:
+    - [access_token]
+
+    config:
+      start_date: 6 months ago
+      api_url: https://api.re-leased.com/api
+
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl

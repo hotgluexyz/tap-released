@@ -1,0 +1,92 @@
+"""HTTP API client (REST or GraphQL), including ReleasedStream base class."""
+
+from __future__ import annotations
+
+from functools import cached_property
+from typing import Any
+
+import requests
+from hotglue_singer_sdk.authenticators import BearerTokenAuthenticator
+from hotglue_singer_sdk.helpers.jsonpath import extract_jsonpath
+from hotglue_singer_sdk.streams import RESTStream
+from typing_extensions import override
+
+
+class ReleasedStream(RESTStream):
+    """Released stream class."""
+
+    # Most Released list endpoints nest records under ``Data``.
+    records_jsonpath = "$.Data[*]"
+
+    # Override on streams that paginate; default is no pagination.
+    next_page_token_jsonpath = None
+
+    @override
+    @property
+    def url_base(self) -> str:
+        """Return the API URL root, configurable via the ``api_url`` tap setting."""
+        return self.config.get("api_url", "https://api.re-leased.com/api")
+
+    @override
+    @cached_property
+    def authenticator(self) -> BearerTokenAuthenticator:
+        """Return a Bearer token authenticator using ``access_token`` from config."""
+        return BearerTokenAuthenticator.create_for_stream(
+            self,
+            token=self.config["access_token"],
+        )
+
+    @override
+    @property
+    def http_headers(self) -> dict:
+        """Return the http headers needed."""
+        return {}
+
+    def get_next_page_token(
+        self,
+        response: requests.Response,
+        previous_token: Any | None,
+    ) -> Any | None:
+        """Return token identifying next page or None if all records have been read.
+
+        Args:
+            response: A raw `requests.Response`_ object.
+            previous_token: Previous pagination reference.
+
+        Returns:
+            Reference value to retrieve next page.
+
+        .. _requests.Response:
+            https://requests.readthedocs.io/en/latest/api/#requests.Response
+        """
+        if self.next_page_token_jsonpath:
+            all_matches = extract_jsonpath(
+                self.next_page_token_jsonpath, response.json()
+            )
+            return next(iter(all_matches), None)
+
+        return None
+
+    @override
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+        params: dict[str, Any] = {}
+        if next_page_token:
+            params["page"] = next_page_token
+        if self.replication_key:
+            starting = self.get_starting_timestamp(context)
+            if starting:
+                params["updatedAfterDate"] = starting.strftime("%Y-%m-%dT%H:%M:%S")
+        return params
