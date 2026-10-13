@@ -9,6 +9,7 @@ from tap_released.tap import TapReleased
 SAMPLE_CONFIG = {
     "start_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
     "access_token": "placeholder",
+    "company_id": "00000000-0000-0000-0000-000000000000",
 }
 
 # _test_stream_connections makes live HTTP calls; excluded by default.

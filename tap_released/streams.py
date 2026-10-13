@@ -71,6 +71,7 @@ class InvoicesStream(ReleasedStream):
     path = "/invoices"
     primary_keys = ["Id"]
     replication_key = "UpdatedDate"
+    company_id_jsonpath = "$.Company.Id"
 
     schema = th.PropertiesList(
         th.Property("Id", th.StringType, description="Invoice ID"),
@@ -119,6 +120,7 @@ class CompaniesStream(ReleasedStream):
     path = "/companies"
     primary_keys = ["Id"]
     replication_key = None
+    company_id_jsonpath = "$.Id"
 
     schema = th.PropertiesList(
         th.Property("Id", th.StringType, description="Company ID"),
@@ -186,6 +188,5 @@ class ContactsStream(ReleasedStream):
     ) -> dict[str, Any]:
         """Pass companyId plus shared updatedAfterDate from the base client."""
         params = super().get_url_params(context, next_page_token)
-        if context and context.get("company_id"):
-            params["companyId"] = context["company_id"]
+        params["companyId"] = self.config["company_id"]
         return params

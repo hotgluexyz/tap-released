@@ -23,6 +23,10 @@ plugins:
       description: Long-lived Bearer access token for the Released API
       sensitive: true
 
+    - name: company_id
+      label: Company ID
+      description: Company ID to sync; only records for this company are emitted
+
     - name: start_date
       kind: date_iso8601
       label: Start Date
@@ -33,7 +37,7 @@ plugins:
       description: Base URL for the Released API
 
     settings_group_validation:
-    - [access_token]
+    - [access_token, company_id]
 
     config:
       start_date: 6 months ago
