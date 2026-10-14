@@ -13,9 +13,9 @@ A [Singer](https://www.singer.io/) tap that extracts data from **Released**. It 
 
 | Stream | Endpoint / notes | Primary key | Replication key |
 | ------ | ---------------- | ----------- | ----------------- |
-| `companies` | `GET` `/companies` — parent of contacts; records in `Data` | `Id` | — (full table) |
+| `companies` | `GET` `/companies` — parent of contacts; filtered to config `company_id` | `Id` | — (full table) |
 | `contacts` | `GET` `/contacts?companyId=&updatedAfterDate=` — child of companies | `Id` | `UpdatedDateTime` |
-| `invoices` | `GET` `/invoices?updatedAfterDate=` | `Id` | `UpdatedDate` |
+| `invoices` | `GET` `/invoices?updatedAfterDate=` — filtered to config `company_id` via `Company.Id` | `Id` | `UpdatedDate` |
 
 ## Requirements
 
@@ -51,6 +51,7 @@ tap-released --help
 | Setting | Type | Required | Default | Description |
 | ------- | ---- | -------- | ------- | ----------- |
 | `access_token` | string | yes | — | Long-lived Bearer access token (sensitive). |
+| `company_id` | string | yes | — | Company ID to sync; only records for this company are emitted. |
 | `start_date` | string (datetime) | no | `2000-01-01T00:00:00Z` | Earliest record date to sync. |
 | `api_url` | string | no | `https://api.re-leased.com/api` | Base URL for the API. |
 
@@ -62,7 +63,8 @@ Run `tap-released --about` (or `tap-released --about --format=markdown`) for the
 {
   "start_date": "2000-01-01T00:00:00Z",
   "api_url": "https://api.re-leased.com/api",
-  "access_token": "YOUR_ACCESS_TOKEN"
+  "access_token": "YOUR_ACCESS_TOKEN",
+  "company_id": "YOUR_COMPANY_ID"
 }
 ```
 

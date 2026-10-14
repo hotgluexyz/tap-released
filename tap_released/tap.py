@@ -43,6 +43,12 @@ class TapReleased(Tap):
             required=True,
             description="Long-lived Bearer access token for the Released API",
         ),
+        th.Property(
+            "company_id",
+            th.StringType,
+            required=True,
+            description="Company ID to sync; only records for this company are emitted",
+        ),
     ).to_dict()
 
     @override

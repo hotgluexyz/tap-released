@@ -21,6 +21,9 @@ class ReleasedStream(RESTStream):
     # Override on streams that paginate; default is no pagination.
     next_page_token_jsonpath = None
 
+    # When set, keep only records whose value at this path equals config ``company_id``.
+    company_id_jsonpath: str | None = None
+
     @override
     @property
     def url_base(self) -> str:
@@ -90,3 +93,19 @@ class ReleasedStream(RESTStream):
             if starting:
                 params["updatedAfterDate"] = starting.strftime("%Y-%m-%dT%H:%M:%S")
         return params
+
+    @override
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,
+    ) -> dict | None:
+        """Drop records that do not belong to the configured ``company_id``."""
+        if self.company_id_jsonpath:
+            match = next(
+                extract_jsonpath(self.company_id_jsonpath, row),
+                None,
+            )
+            if match != self.config["company_id"]:
+                return None
+        return row
