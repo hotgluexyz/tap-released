@@ -28,7 +28,7 @@ class ReleasedStream(RESTStream):
     @property
     def url_base(self) -> str:
         """Return the API URL root, configurable via the ``api_url`` tap setting."""
-        return self.config.get("api_url", "https://api.re-leased.com/api")
+        return "https://api.re-leased.com/api"
 
     @override
     @cached_property

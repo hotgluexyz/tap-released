@@ -32,12 +32,6 @@ class TapReleased(Tap):
             default="2000-01-01T00:00:00Z",
         ),
         th.Property(
-            "api_url",
-            th.StringType,
-            description="Base URL for the Released API",
-            default="https://api.re-leased.com/api",
-        ),
-        th.Property(
             "access_token",
             th.StringType,
             required=True,
