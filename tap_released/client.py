@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 import requests
 from hotglue_singer_sdk.authenticators import BearerTokenAuthenticator
@@ -18,8 +19,8 @@ class ReleasedStream(RESTStream):
     # Most Released list endpoints nest records under ``Data``.
     records_jsonpath = "$.Data[*]"
 
-    # Override on streams that paginate; default is no pagination.
-    next_page_token_jsonpath = None
+    # Cursor pagination: ``MetaData.NextPageUrl`` (e.g. ``api/invoices?fromId=...``).
+    next_page_token_jsonpath = "$.MetaData.NextPageUrl"
 
     @override
     @property
@@ -47,18 +48,7 @@ class ReleasedStream(RESTStream):
         response: requests.Response,
         previous_token: Any | None,
     ) -> Any | None:
-        """Return token identifying next page or None if all records have been read.
-
-        Args:
-            response: A raw `requests.Response`_ object.
-            previous_token: Previous pagination reference.
-
-        Returns:
-            Reference value to retrieve next page.
-
-        .. _requests.Response:
-            https://requests.readthedocs.io/en/latest/api/#requests.Response
-        """
+        """Return ``MetaData.NextPageUrl`` or None when there is no next page."""
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
                 self.next_page_token_jsonpath, response.json()
@@ -73,18 +63,14 @@ class ReleasedStream(RESTStream):
         context: dict | None,
         next_page_token: Any | None,
     ) -> dict[str, Any]:
-        """Return a dictionary of values to be used in URL parameterization.
-
-        Args:
-            context: The stream context.
-            next_page_token: The next page index or value.
-
-        Returns:
-            A dictionary of URL query parameters.
-        """
+        """Return URL query params, including ``fromId`` from ``NextPageUrl``."""
         params: dict[str, Any] = {}
         if next_page_token:
-            params["page"] = next_page_token
+            from_id = parse_qs(urlparse(str(next_page_token)).query).get(
+                "fromId", [None]
+            )[0]
+            if from_id:
+                params["fromId"] = from_id
         if self.replication_key:
             starting = self.get_starting_timestamp(context)
             if starting:
