@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 
 from hotglue_singer_sdk import typing as th  # JSON Schema typing helpers
 from typing_extensions import override
@@ -69,7 +69,7 @@ class InvoicesStream(ReleasedStream):
 
     name = "invoices"
     path = "/invoices"
-    primary_keys = ["Id"]
+    primary_keys: ClassVar[list[str]] = ["Id"]
     replication_key = "UpdatedDate"
     company_id_jsonpath = "$.Company.Id"
 
@@ -118,7 +118,7 @@ class CompaniesStream(ReleasedStream):
 
     name = "companies"
     path = "/companies"
-    primary_keys = ["Id"]
+    primary_keys: ClassVar[list[str]] = ["Id"]
     replication_key = None
     company_id_jsonpath = "$.Id"
 
@@ -141,7 +141,7 @@ class ContactsStream(ReleasedStream):
 
     name = "contacts"
     path = "/contacts"
-    primary_keys = ["Id"]
+    primary_keys: ClassVar[list[str]] = ["Id"]
     replication_key = "UpdatedDateTime"
     parent_stream_type = CompaniesStream
     ignore_parent_replication_key = True

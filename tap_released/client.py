@@ -53,9 +53,7 @@ class ReleasedStream(RESTStream):
     ) -> Any | None:
         """Return ``MetaData.NextPageUrl`` or None when there is no next page."""
         if self.next_page_token_jsonpath:
-            all_matches = extract_jsonpath(
-                self.next_page_token_jsonpath, response.json()
-            )
+            all_matches = extract_jsonpath(self.next_page_token_jsonpath, response.json())
             return next(iter(all_matches), None)
 
         return None
@@ -69,9 +67,7 @@ class ReleasedStream(RESTStream):
         """Return URL query params, including ``fromId`` from ``NextPageUrl``."""
         params: dict[str, Any] = {}
         if next_page_token:
-            from_id = parse_qs(urlparse(str(next_page_token)).query).get(
-                "fromId", [None]
-            )[0]
+            from_id = parse_qs(urlparse(str(next_page_token)).query).get("fromId", [None])[0]
             if from_id:
                 params["fromId"] = from_id
         if self.replication_key:
