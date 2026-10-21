@@ -10,12 +10,14 @@ from tap_released.streams import (
     CompaniesStream,
     ContactsStream,
     InvoicesStream,
+    PaymentsStream,
 )
 
 STREAM_TYPES = [
     CompaniesStream,
     ContactsStream,
     InvoicesStream,
+    PaymentsStream,
 ]
 
 
