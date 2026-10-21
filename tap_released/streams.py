@@ -113,6 +113,39 @@ class InvoicesStream(ReleasedStream):
     ).to_dict()
 
 
+class CreditNotesStream(ReleasedStream):
+    """Stream for ``credit_notes``."""
+
+    name = "credit_notes"
+    path = "/credit-notes"
+    primary_keys: ClassVar[list[str]] = ["Id"]
+    replication_key = "UpdatedDate"
+
+    schema = th.PropertiesList(
+        th.Property("Id", th.StringType, description="Credit note ID"),
+        th.Property("DisplayId", th.StringType),
+        th.Property("Reference", th.StringType),
+        th.Property("Contact", _PERSON),
+        th.Property("Property", _PROPERTY),
+        th.Property("Type", th.StringType),
+        th.Property("Date", th.DateTimeType),
+        th.Property("IssueDate", th.DateTimeType),
+        th.Property("LineAmountTypes", th.StringType),
+        th.Property("Status", th.StringType),
+        th.Property(
+            "UpdatedDate",
+            th.DateTimeType,
+            description="Last update timestamp (replication key)",
+        ),
+        th.Property("RemainingCredit", th.NumberType),
+        th.Property("SubTotal", th.NumberType),
+        th.Property("TotalTax", th.NumberType),
+        th.Property("Total", th.NumberType),
+        th.Property("LineItems", th.ArrayType(_LINE_ITEM)),
+        th.Property("Allocations", th.ArrayType(th.ObjectType())),
+    ).to_dict()
+
+
 class CompaniesStream(ReleasedStream):
     """Stream for ``companies`` (parent of contacts)."""
 
