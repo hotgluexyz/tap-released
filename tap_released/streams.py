@@ -190,3 +190,58 @@ class ContactsStream(ReleasedStream):
         params = super().get_url_params(context, next_page_token)
         params["companyId"] = self.config["company_id"]
         return params
+
+
+_COMPACT_INVOICE = th.ObjectType(
+    th.Property("Id", th.StringType),
+    th.Property("DisplayId", th.StringType),
+    th.Property("Status", th.StringType),
+    th.Property("AmountDue", th.NumberType),
+    th.Property("Total", th.NumberType),
+)
+
+
+class PaymentsStream(ReleasedStream):
+    """Stream for ``payments`` (child of companies; requires ``companyId``)."""
+
+    name = "payments"
+    path = "/payments"
+    primary_keys: ClassVar[list[str]] = ["Id"]
+    replication_key = "UpdatedDate"
+    parent_stream_type = CompaniesStream
+    ignore_parent_replication_key = True
+    company_id_jsonpath = "$.Company.Id"
+
+    schema = th.PropertiesList(
+        th.Property("Id", th.StringType, description="Payment ID"),
+        th.Property("PaymentDate", th.DateTimeType, description="Date of payment"),
+        th.Property("Amount", th.NumberType, description="Amount paid"),
+        th.Property("Reference", th.StringType),
+        th.Property("PaymentStatus", th.StringType),
+        th.Property("PaymentType", th.StringType),
+        th.Property("CreatedDate", th.DateTimeType),
+        th.Property(
+            "UpdatedDate",
+            th.DateTimeType,
+            description="Last update timestamp (replication key)",
+        ),
+        th.Property("Invoice", _COMPACT_INVOICE),
+        th.Property(
+            "Company",
+            th.ObjectType(
+                th.Property("Id", th.StringType),
+                th.Property("Name", th.StringType),
+            ),
+        ),
+    ).to_dict()
+
+    @override
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Pass companyId plus shared updatedAfterDate from the base client."""
+        params = super().get_url_params(context, next_page_token)
+        params["companyId"] = self.config["company_id"]
+        return params
