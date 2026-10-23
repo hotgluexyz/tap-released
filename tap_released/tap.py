@@ -9,6 +9,7 @@ from typing_extensions import override
 from tap_released.streams import (
     CompaniesStream,
     ContactsStream,
+    CreditNotesStream,
     InvoicesStream,
     PaymentsStream,
 )
@@ -16,6 +17,7 @@ from tap_released.streams import (
 STREAM_TYPES = [
     CompaniesStream,
     ContactsStream,
+    CreditNotesStream,
     InvoicesStream,
     PaymentsStream,
 ]

@@ -15,6 +15,7 @@ A [Singer](https://www.singer.io/) tap that extracts data from **Released**. It 
 | ------ | ---------------- | ----------- | ----------------- |
 | `companies` | `GET` `/companies` — parent of contacts/payments; filtered to config `company_id` | `Id` | — (full table) |
 | `contacts` | `GET` `/contacts?companyId=&updatedAfterDate=` — child of companies | `Id` | `UpdatedDateTime` |
+| `credit_notes` | `GET` `/credit-notes?updatedAfterDate=` — no company filter (API has no `Company`) | `Id` | `UpdatedDate` |
 | `invoices` | `GET` `/invoices?updatedAfterDate=` — filtered to config `company_id` via `Company.Id` | `Id` | `UpdatedDate` |
 | `payments` | `GET` `/payments?companyId=&updatedAfterDate=` — child of companies | `Id` | `UpdatedDate` |
 
